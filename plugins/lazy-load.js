@@ -7,18 +7,18 @@
     'use strict';
 
     // 确保插件基类已加载
-    if (typeof window.PixivPlusPluginBase === 'undefined') {
+    if (typeof window.PixivEvolvedPluginBase === 'undefined') {
         console.error('PluginBase not found. Please ensure plugin-base.js is loaded first.');
         return;
     }
 
-    class LazyLoadPlugin extends window.PixivPlusPluginBase {
+    class LazyLoadPlugin extends window.PixivEvolvedPluginBase {
         constructor() {
             super('lazy-load', {
                 name: '懒加载',
                 version: '1.0.0',
                 description: '当页面在后台时延迟加载内容，切换到标签页后再加载',
-                author: 'Pixiv Plus Team',
+                author: 'Pixiv-Evolved Team',
                 configSchema: [
                     {
                         type: 'switch',
@@ -77,8 +77,8 @@
             
             // 尝试从配置管理器读取配置（如果可用）
             let enabled = true;
-            if (typeof window.PixivPlusConfigManager !== 'undefined') {
-                const pluginConfig = window.PixivPlusConfigManager.get(`plugin_${this.id}`);
+            if (typeof window.PixivEvolvedConfigManager !== 'undefined') {
+                const pluginConfig = window.PixivEvolvedConfigManager.get(`plugin_${this.id}`);
                 if (pluginConfig && pluginConfig.enabled !== undefined) {
                     enabled = pluginConfig.enabled;
                 }
@@ -98,8 +98,8 @@
                 console.log('[Lazy Load] Page is hidden, setting up early interception');
                 // 检查具体配置
                 let delayRequests = true;
-                if (typeof window.PixivPlusConfigManager !== 'undefined') {
-                    const pluginConfig = window.PixivPlusConfigManager.get(`plugin_${this.id}`);
+                if (typeof window.PixivEvolvedConfigManager !== 'undefined') {
+                    const pluginConfig = window.PixivEvolvedConfigManager.get(`plugin_${this.id}`);
                     if (pluginConfig && pluginConfig.config && pluginConfig.config.delayRequests !== undefined) {
                         delayRequests = pluginConfig.config.delayRequests;
                     }
@@ -564,13 +564,13 @@
     }
 
     // 注册插件
-    if (typeof window.PixivPlusPluginManager !== 'undefined') {
-        window.PixivPlusPluginManager.register(new LazyLoadPlugin());
+    if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+        window.PixivEvolvedPluginManager.register(new LazyLoadPlugin());
     } else {
         // 如果插件管理器还未加载，等待加载后再注册
-        window.addEventListener('pixiv-plus-ready', () => {
-            if (typeof window.PixivPlusPluginManager !== 'undefined') {
-                window.PixivPlusPluginManager.register(new LazyLoadPlugin());
+        window.addEventListener('pixiv-evolved-ready', () => {
+            if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+                window.PixivEvolvedPluginManager.register(new LazyLoadPlugin());
             }
         });
     }

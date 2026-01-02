@@ -1,4 +1,4 @@
-# Pixiv Plus
+# Pixiv-Evolved
 
 一个用于增强 Pixiv 使用体验的油猴脚本，采用插件化架构，提供完善的控制面板、国际化支持和配置管理功能。
 
@@ -21,7 +21,7 @@
 
 1. 访问 Pixiv 网站
 2. 点击浏览器扩展栏的油猴图标
-3. 选择 "Pixiv Plus 控制面板"
+3. 选择 "Pixiv-Evolved 控制面板"
 4. 在控制面板中配置各项功能
 
 ## 功能说明
@@ -106,8 +106,8 @@ class MyPlugin extends PluginBase {
 }
 
 // 注册插件
-if (typeof window.PixivPlusPluginManager !== 'undefined') {
-    window.PixivPlusPluginManager.register(new MyPlugin());
+if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+    window.PixivEvolvedPluginManager.register(new MyPlugin());
 }
 ```
 
@@ -125,16 +125,16 @@ if (typeof window.PixivPlusPluginManager !== 'undefined') {
 
 插件可以访问以下全局对象：
 
-- `window.PixivPlusPluginManager` - 插件管理器
-- `window.PixivPlusConfigManager` - 配置管理器  
-- `window.PixivPlusI18n` - 国际化系统
+- `window.PixivEvolvedPluginManager` - 插件管理器
+- `window.PixivEvolvedConfigManager` - 配置管理器  
+- `window.PixivEvolvedI18n` - 国际化系统
 
 详细文档请查看 [plugins/README.md](plugins/README.md)。
 
 ## 项目结构
 
 ```
-PixivPlus/
+Pixiv-Evolved/
 ├── pixiv-plus.user.js     # 主脚本文件
 ├── README.md              # 项目说明文档
 └── plugins/               # 插件目录
@@ -152,7 +152,7 @@ PixivPlus/
 
 ## 许可证
 
-MIT License
+保留所有权利
 
 ## 贡献
 

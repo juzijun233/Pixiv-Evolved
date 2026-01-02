@@ -1,24 +1,24 @@
 /**
  * 示例插件
- * 演示如何创建一个 Pixiv Plus 插件
+ * 演示如何创建一个 Pixiv-Evolved 插件
  */
 
 (function() {
     'use strict';
 
     // 确保插件基类已加载
-    if (typeof window.PixivPlusPluginBase === 'undefined') {
+    if (typeof window.PixivEvolvedPluginBase === 'undefined') {
         console.error('PluginBase not found. Please ensure plugin-base.js is loaded first.');
         return;
     }
 
-    class ExamplePlugin extends window.PixivPlusPluginBase {
+    class ExamplePlugin extends window.PixivEvolvedPluginBase {
         constructor() {
             super('example-plugin', {
                 name: 'Example Plugin',
                 version: '1.0.0',
-                description: '这是一个示例插件，演示如何创建 Pixiv Plus 插件',
-                author: 'Pixiv Plus Team',
+                description: '这是一个示例插件，演示如何创建 Pixiv-Evolved 插件',
+                author: 'Pixiv-Evolved Team',
                 configSchema: [
                     {
                         type: 'switch',
@@ -98,13 +98,13 @@
     }
 
     // 注册插件
-    if (typeof window.PixivPlusPluginManager !== 'undefined') {
-        window.PixivPlusPluginManager.register(new ExamplePlugin());
+    if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+        window.PixivEvolvedPluginManager.register(new ExamplePlugin());
     } else {
         // 如果插件管理器还未加载，等待加载后再注册
-        window.addEventListener('pixiv-plus-ready', () => {
-            if (typeof window.PixivPlusPluginManager !== 'undefined') {
-                window.PixivPlusPluginManager.register(new ExamplePlugin());
+        window.addEventListener('pixiv-evolved-ready', () => {
+            if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+                window.PixivEvolvedPluginManager.register(new ExamplePlugin());
             }
         });
     }

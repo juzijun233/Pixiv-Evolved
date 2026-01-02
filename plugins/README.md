@@ -1,8 +1,8 @@
-# Pixiv Plus 插件开发指南
+# Pixiv-Evolved 插件开发指南
 
 ## 插件系统概述
 
-Pixiv Plus 采用插件化架构，所有功能都通过插件的形式实现。每个插件都是独立的 JavaScript 文件，可以单独安装、启用和禁用。
+Pixiv-Evolved 采用插件化架构，所有功能都通过插件的形式实现。每个插件都是独立的 JavaScript 文件，可以单独安装、启用和禁用。
 
 ## 插件结构
 
@@ -103,13 +103,13 @@ class YourPlugin extends PluginBase {
 
 ```javascript
 // 方式1: 如果插件管理器已加载
-if (typeof window.PixivPlusPluginManager !== 'undefined') {
-    window.PixivPlusPluginManager.register(new YourPlugin());
+if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+    window.PixivEvolvedPluginManager.register(new YourPlugin());
 } else {
     // 方式2: 等待插件管理器加载完成
-    window.addEventListener('pixiv-plus-ready', () => {
-        if (typeof window.PixivPlusPluginManager !== 'undefined') {
-            window.PixivPlusPluginManager.register(new YourPlugin());
+    window.addEventListener('pixiv-evolved-ready', () => {
+        if (typeof window.PixivEvolvedPluginManager !== 'undefined') {
+            window.PixivEvolvedPluginManager.register(new YourPlugin());
         }
     });
 }
@@ -137,9 +137,9 @@ this.setAllConfig(configObject);
 
 插件可以访问以下全局对象：
 
-- `window.PixivPlusPluginManager` - 插件管理器
-- `window.PixivPlusConfigManager` - 配置管理器
-- `window.PixivPlusI18n` - 国际化系统
+- `window.PixivEvolvedPluginManager` - 插件管理器
+- `window.PixivEvolvedConfigManager` - 配置管理器
+- `window.PixivEvolvedI18n` - 国际化系统
 
 ## 示例插件
 

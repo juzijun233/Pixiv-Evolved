@@ -1,5 +1,5 @@
 /**
- * Pixiv Plus 插件基类
+ * Pixiv-Evolved 插件基类
  * 所有插件都应该继承或遵循这个接口规范
  */
 
@@ -116,7 +116,7 @@
 
     // 导出到全局
     if (typeof window !== 'undefined') {
-        window.PixivPlusPluginBase = PluginBase;
+        window.PixivEvolvedPluginBase = PluginBase;
     }
 
 })();

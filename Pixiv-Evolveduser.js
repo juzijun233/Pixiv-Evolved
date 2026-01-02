@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Pixiv Plus
-// @namespace    https://github.com/juzijun233/PixivPlus
+// @name         Pixiv-Evolved
+// @namespace    https://github.com/juzijun233/Pixiv-Evolved
 // @version      1.0.0
 // @description  增强 Pixiv 使用体验的油猴脚本
 // @author       juzijun233
@@ -40,7 +40,7 @@
                 reset: '重置',
                 
                 // 控制面板
-                controlPanel: 'Pixiv Plus 控制面板',
+                controlPanel: 'Pixiv-Evolved 控制面板',
                 general: '常规',
                 plugins: '插件管理',
                 display: '显示',
@@ -99,7 +99,7 @@
                 reset: 'Reset',
                 
                 // Control Panel
-                controlPanel: 'Pixiv Plus Control Panel',
+                controlPanel: 'Pixiv-Evolved Control Panel',
                 general: 'General',
                 plugins: 'Plugins',
                 display: 'Display',
@@ -158,7 +158,7 @@
                 reset: 'リセット',
                 
                 // コントロールパネル
-                controlPanel: 'Pixiv Plus コントロールパネル',
+                controlPanel: 'Pixiv-Evolved コントロールパネル',
                 general: '一般',
                 plugins: 'プラグイン管理',
                 display: '表示',
@@ -239,7 +239,7 @@
 
     // ==================== 配置管理系统 ====================
     const ConfigManager = {
-        prefix: 'pixivPlus_',
+        prefix: 'pixivEvolved_',
         
         get(key, defaultValue = null) {
             const value = GM_getValue(this.prefix + key, defaultValue);
@@ -295,7 +295,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `pixiv-plus-config-${Date.now()}.json`;
+            a.download = `pixiv-evolved-config-${Date.now()}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -551,12 +551,12 @@
     
     // 暴露到全局，供插件使用
     if (typeof window !== 'undefined') {
-        window.PixivPlusPluginManager = PluginManager;
-        window.PixivPlusConfigManager = ConfigManager;
-        window.PixivPlusI18n = i18n;
+        window.PixivEvolvedPluginManager = PluginManager;
+        window.PixivEvolvedConfigManager = ConfigManager;
+        window.PixivEvolvedI18n = i18n;
         
         // 触发插件就绪事件
-        window.dispatchEvent(new CustomEvent('pixiv-plus-ready'));
+        window.dispatchEvent(new CustomEvent('pixiv-evolved-ready'));
     }
 
     // ==================== 控制面板 UI ====================
@@ -579,7 +579,7 @@
         createPanel() {
             // 创建遮罩层
             const overlay = document.createElement('div');
-            overlay.id = 'pixiv-plus-overlay';
+            overlay.id = 'pixiv-evolved-overlay';
             overlay.style.cssText = `
                 display: none;
                 position: fixed;
@@ -595,7 +595,7 @@
             
             // 创建主面板
             this.panel = document.createElement('div');
-            this.panel.id = 'pixiv-plus-panel';
+            this.panel.id = 'pixiv-evolved-panel';
             this.panel.style.cssText = `
                 display: none;
                 position: fixed;
@@ -684,7 +684,7 @@
             
             // 选项卡导航
             const tabs = document.createElement('div');
-            tabs.id = 'pixiv-plus-tabs';
+            tabs.id = 'pixiv-evolved-tabs';
             tabs.style.cssText = `
                 width: 180px;
                 background: #f5f5f5;
@@ -695,7 +695,7 @@
             
             // 选项卡内容区
             const tabContent = document.createElement('div');
-            tabContent.id = 'pixiv-plus-tab-content';
+            tabContent.id = 'pixiv-evolved-tab-content';
             tabContent.style.cssText = `
                 flex: 1;
                 padding: 24px;
@@ -715,7 +715,7 @@
             let activeTab = 'general';
             tabDefinitions.forEach(tabDef => {
                 const tab = document.createElement('div');
-                tab.className = 'pixiv-plus-tab';
+                tab.className = 'pixiv-evolved-tab';
                 tab.dataset.tab = tabDef.id;
                 tab.textContent = i18n.t(tabDef.label);
                 tab.style.cssText = `
@@ -747,7 +747,7 @@
                 
                 tab.onclick = () => {
                     // 更新活动选项卡
-                    document.querySelectorAll('.pixiv-plus-tab').forEach(t => {
+                    document.querySelectorAll('.pixiv-evolved-tab').forEach(t => {
                         t.style.background = 'transparent';
                         t.style.color = '#666';
                         t.style.borderLeftColor = 'transparent';
@@ -1282,12 +1282,12 @@
                     const newLang = selectEl.value;
                     i18n.setLang(newLang);
                     // 重新加载当前选项卡
-                    const activeTab = document.querySelector('.pixiv-plus-tab[style*="0096fa"]');
+                    const activeTab = document.querySelector('.pixiv-evolved-tab[style*="0096fa"]');
                     if (activeTab) {
                         activeTab.click();
                     }
                     // 更新标题
-                    const title = document.querySelector('#pixiv-plus-panel h2');
+                    const title = document.querySelector('#pixiv-evolved-panel h2');
                     if (title) title.textContent = i18n.t('controlPanel');
                     // 更新按钮文本
                     this.updateButtonTexts();
@@ -1363,10 +1363,10 @@
                 // 更新按钮和选项卡文本
                 this.updateButtonTexts();
                 // 更新标题
-                const title = document.querySelector('#pixiv-plus-panel h2');
+                const title = document.querySelector('#pixiv-evolved-panel h2');
                 if (title) title.textContent = i18n.t('controlPanel');
                 // 重新加载面板内容（特别是插件选项卡）
-                const activeTab = document.querySelector('.pixiv-plus-tab[style*="0096fa"]');
+                const activeTab = document.querySelector('.pixiv-evolved-tab[style*="0096fa"]');
                 if (activeTab) {
                     activeTab.click();
                 }
@@ -1388,10 +1388,10 @@
                 // 更新按钮和选项卡文本
                 this.updateButtonTexts();
                 // 更新标题
-                const title = document.querySelector('#pixiv-plus-panel h2');
+                const title = document.querySelector('#pixiv-evolved-panel h2');
                 if (title) title.textContent = i18n.t('controlPanel');
                 // 重新加载面板内容
-                const activeTab = document.querySelector('.pixiv-plus-tab[style*="0096fa"]');
+                const activeTab = document.querySelector('.pixiv-evolved-tab[style*="0096fa"]');
                 if (activeTab) {
                     activeTab.click();
                 }
@@ -1400,7 +1400,7 @@
         
         updateButtonTexts() {
             // 更新底部按钮文本
-            const footer = document.querySelector('#pixiv-plus-panel > div:last-child');
+            const footer = document.querySelector('#pixiv-evolved-panel > div:last-child');
             if (footer) {
                 const buttons = footer.querySelectorAll('button');
                 if (buttons.length >= 4) {
@@ -1418,7 +1418,7 @@
                 download: i18n.t('download'),
                 advanced: i18n.t('advanced')
             };
-            document.querySelectorAll('.pixiv-plus-tab').forEach(tab => {
+            document.querySelectorAll('.pixiv-evolved-tab').forEach(tab => {
                 const tabId = tab.dataset.tab;
                 if (tabTexts[tabId]) {
                     tab.textContent = tabTexts[tabId];
@@ -1444,9 +1444,9 @@
             `;
             
             // 添加动画样式
-            if (!document.getElementById('pixiv-plus-animations')) {
+            if (!document.getElementById('pixiv-evolved-animations')) {
                 const style = document.createElement('style');
-                style.id = 'pixiv-plus-animations';
+                style.id = 'pixiv-evolved-animations';
                 style.textContent = `
                     @keyframes slideIn {
                         from {
@@ -1473,7 +1473,7 @@
         show() {
             if (this.isVisible) return;
             this.isVisible = true;
-            const overlay = document.getElementById('pixiv-plus-overlay');
+            const overlay = document.getElementById('pixiv-evolved-overlay');
             overlay.style.display = 'block';
             this.panel.style.display = 'block';
             
@@ -1491,7 +1491,7 @@
         hide() {
             if (!this.isVisible) return;
             this.isVisible = false;
-            const overlay = document.getElementById('pixiv-plus-overlay');
+            const overlay = document.getElementById('pixiv-evolved-overlay');
             overlay.style.opacity = '0';
             this.panel.style.opacity = '0';
             this.panel.style.transform = 'translate(-50%, -50%) scale(0.95)';
@@ -1522,7 +1522,7 @@
         // 注意：在实际使用中，插件应该通过 @require 指令在脚本头部声明
         // 或者使用 PluginManager.loadPluginScript() 动态加载
         
-        // 插件注册会在插件脚本加载时自动完成（通过 window.PixivPlusPluginManager.register）
+        // 插件注册会在插件脚本加载时自动完成（通过 window.PixivEvolvedPluginManager.register）
         console.log('Plugins loaded');
     }
     
