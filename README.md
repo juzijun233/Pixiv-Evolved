@@ -42,8 +42,29 @@
 
 - **插件管理** - 在"插件管理"选项卡中查看、启用、禁用和配置所有插件
 - **独立配置** - 每个插件都有自己独立的配置项，可在插件管理界面中配置
-- **动态加载** - 插件可以动态加载，无需修改主脚本
+- **GitHub 加载** - 插件默认从 GitHub 仓库加载：https://github.com/juzijun233/Pixiv-Evolved
+- **动态加载** - 支持通过配置添加自定义插件，无需修改主脚本
 - **配置同步** - 插件配置随主配置一起导出和导入
+
+#### 插件加载方式
+
+插件默认从 GitHub 仓库的 `plugins` 目录加载：
+- 基础插件（plugin-base.js、example-plugin.js、lazy-load.js）通过 `@require` 指令自动加载
+- 自定义插件可以通过配置 `customPlugins` 数组动态加载
+
+**添加自定义插件：**
+
+在控制面板的配置中设置 `customPlugins` 数组，例如：
+```javascript
+{
+  "customPlugins": ["my-custom-plugin.js"]
+}
+```
+
+插件将从以下地址加载：
+```
+https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/my-custom-plugin.js
+```
 
 ### 配置管理
 
@@ -68,10 +89,10 @@
 
 **快速开始：**
 
-1. 在 `plugins/` 目录下创建新的插件文件，例如 `my-plugin.js`
+1. 在 GitHub 仓库的 `plugins/` 目录下创建新的插件文件，例如 `my-plugin.js`
 2. 继承 `PluginBase` 类并实现必要的接口
 3. 定义配置项（configSchema）
-4. 在主脚本的 `@require` 指令中添加插件文件
+4. 插件会自动从 GitHub 加载，或通过配置 `customPlugins` 动态加载
 5. 插件会自动在控制面板的"插件管理"选项卡中显示
 
 **示例：**

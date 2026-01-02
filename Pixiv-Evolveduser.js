@@ -14,13 +14,12 @@
 // @grant        GM_xmlhttpRequest
 // @run-at       document-start
 // @license      MIT
-// @require      file:///plugins/plugin-base.js
-// @require      file:///plugins/example-plugin.js
-// @require      file:///plugins/lazy-load.js
-// 注意：插件文件可以通过以下方式加载：
-// 1. 使用 @require 指令（需要部署到可访问的 URL）
-// 2. 使用 PluginManager.loadPluginScript() 动态加载
-// 3. 本地开发时，可以使用 file:/// 协议指向本地文件（需要调整路径）
+// @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/plugin-base.js
+// @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/example-plugin.js
+// @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/lazy-load.js
+// 注意：插件文件默认从 GitHub 仓库加载
+// GitHub 地址：https://github.com/juzijun233/Pixiv-Evolved
+// 插件目录：https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/
 // ==/UserScript==
 
 (function() {
@@ -1513,17 +1512,48 @@
     };
 
     // ==================== 插件加载 ====================
+    // GitHub 仓库地址
+    const GITHUB_REPO = 'https://github.com/juzijun233/Pixiv-Evolved';
+    const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main';
+    const PLUGINS_BASE_URL = `${GITHUB_RAW_BASE}/plugins`;
+    
+    // 默认插件列表（已通过 @require 加载的插件不需要再次加载）
+    const DEFAULT_PLUGINS = [
+        // 注意：plugin-base.js、example-plugin.js、lazy-load.js 已通过 @require 加载
+        // 如果需要动态加载其他插件，可以在这里添加
+        // 'custom-plugin.js'
+    ];
+    
     async function loadPlugins() {
-        // 这里可以加载插件脚本
-        // 由于油猴脚本的限制，插件需要通过 @require 指令加载
-        // 或者使用动态加载的方式
+        // 从配置中获取自定义插件列表
+        const customPlugins = ConfigManager.get('customPlugins', []);
+        const allPlugins = [...DEFAULT_PLUGINS, ...customPlugins];
         
-        // 示例：加载插件基类
-        // 注意：在实际使用中，插件应该通过 @require 指令在脚本头部声明
-        // 或者使用 PluginManager.loadPluginScript() 动态加载
+        if (allPlugins.length === 0) {
+            console.log('[Pixiv-Evolved] 所有插件已通过 @require 加载');
+            return;
+        }
         
-        // 插件注册会在插件脚本加载时自动完成（通过 window.PixivEvolvedPluginManager.register）
-        console.log('Plugins loaded');
+        console.log(`[Pixiv-Evolved] 开始加载 ${allPlugins.length} 个插件...`);
+        
+        // 动态加载插件
+        for (const pluginFile of allPlugins) {
+            const pluginUrl = `${PLUGINS_BASE_URL}/${pluginFile}`;
+            console.log(`[Pixiv-Evolved] 加载插件: ${pluginFile}`);
+            
+            try {
+                const success = await PluginManager.loadPluginScript(pluginUrl);
+                if (success) {
+                    console.log(`[Pixiv-Evolved] 插件加载成功: ${pluginFile}`);
+                } else {
+                    console.warn(`[Pixiv-Evolved] 插件加载失败: ${pluginFile}`);
+                }
+            } catch (error) {
+                console.error(`[Pixiv-Evolved] 加载插件时出错 ${pluginFile}:`, error);
+            }
+        }
+        
+        console.log('[Pixiv-Evolved] 插件加载完成');
     }
     
     // ==================== 初始化 ====================
