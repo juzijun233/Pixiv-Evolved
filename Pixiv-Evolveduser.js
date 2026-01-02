@@ -86,6 +86,16 @@
                 // 下载设置
                 downloadQuality: '下载质量',
                 downloadQualityDesc: '选择下载图片的质量',
+                
+                // 插件源设置
+                pluginSource: '插件源',
+                pluginSourceDesc: '设置插件的加载源地址（默认为 GitHub 仓库）',
+                pluginSourcePlaceholder: 'https://raw.githubusercontent.com/username/repo/main/plugins',
+                pluginSourceReset: '重置为默认值',
+                pluginSourceCurrent: '当前插件源',
+                pluginSourceTest: '测试连接',
+                pluginSourceTestSuccess: '连接成功',
+                pluginSourceTestFailed: '连接失败',
             },
             en: {
                 // General
@@ -145,6 +155,16 @@
                 // Download Settings
                 downloadQuality: 'Download Quality',
                 downloadQualityDesc: 'Select the quality of downloaded images',
+                
+                // Plugin Source Settings
+                pluginSource: 'Plugin Source',
+                pluginSourceDesc: 'Set the plugin source URL (default: GitHub repository)',
+                pluginSourcePlaceholder: 'https://raw.githubusercontent.com/username/repo/main/plugins',
+                pluginSourceReset: 'Reset to Default',
+                pluginSourceCurrent: 'Current Plugin Source',
+                pluginSourceTest: 'Test Connection',
+                pluginSourceTestSuccess: 'Connection successful',
+                pluginSourceTestFailed: 'Connection failed',
             },
             ja: {
                 // 一般
@@ -204,6 +224,16 @@
                 // ダウンロード設定
                 downloadQuality: 'ダウンロード品質',
                 downloadQualityDesc: 'ダウンロードする画像の品質を選択',
+                
+                // プラグインソース設定
+                pluginSource: 'プラグインソース',
+                pluginSourceDesc: 'プラグインの読み込み元アドレスを設定（デフォルト: GitHub リポジトリ）',
+                pluginSourcePlaceholder: 'https://raw.githubusercontent.com/username/repo/main/plugins',
+                pluginSourceReset: 'デフォルトにリセット',
+                pluginSourceCurrent: '現在のプラグインソース',
+                pluginSourceTest: '接続テスト',
+                pluginSourceTestSuccess: '接続成功',
+                pluginSourceTestFailed: '接続失敗',
             }
         },
         
@@ -1335,16 +1365,152 @@
         buildAdvancedTab() {
             const container = document.createElement('div');
             
-            // 高级功能已移至插件
-            const emptyMsg = document.createElement('div');
-            emptyMsg.textContent = i18n.t('noPlugins') || '暂无相关功能，请安装插件';
-            emptyMsg.style.cssText = `
-                text-align: center;
-                padding: 40px 20px;
-                color: #999;
-                font-size: 14px;
+            // 插件源配置
+            const pluginSourceSection = document.createElement('div');
+            pluginSourceSection.style.cssText = `
+                margin-bottom: 32px;
+                padding: 24px;
+                background: #fafafa;
+                border: 1px solid #e5e5e5;
+                border-radius: 8px;
             `;
-            container.appendChild(emptyMsg);
+            
+            const sectionTitle = document.createElement('h3');
+            sectionTitle.textContent = i18n.t('pluginSource');
+            sectionTitle.style.cssText = `
+                margin: 0 0 16px 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: #212121;
+            `;
+            pluginSourceSection.appendChild(sectionTitle);
+            
+            const sectionDesc = document.createElement('p');
+            sectionDesc.textContent = i18n.t('pluginSourceDesc');
+            sectionDesc.style.cssText = `
+                margin: 0 0 20px 0;
+                font-size: 13px;
+                color: #666;
+                line-height: 1.5;
+            `;
+            pluginSourceSection.appendChild(sectionDesc);
+            
+            // 当前插件源显示
+            const currentSourceDiv = document.createElement('div');
+            currentSourceDiv.style.cssText = 'margin-bottom: 16px;';
+            
+            const currentLabel = document.createElement('div');
+            currentLabel.textContent = i18n.t('pluginSourceCurrent') + ':';
+            currentLabel.style.cssText = `
+                font-size: 13px;
+                color: #666;
+                margin-bottom: 8px;
+            `;
+            currentSourceDiv.appendChild(currentLabel);
+            
+            const currentSourceValue = document.createElement('div');
+            const getCurrentSource = () => {
+                const source = ConfigManager.get('pluginSource', '');
+                const defaultSource = 'https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins';
+                return source || defaultSource;
+            };
+            currentSourceValue.textContent = getCurrentSource();
+            currentSourceValue.style.cssText = `
+                font-size: 13px;
+                color: #0096fa;
+                font-family: 'Courier New', monospace;
+                word-break: break-all;
+                padding: 8px 12px;
+                background: #fff;
+                border: 1px solid #e5e5e5;
+                border-radius: 4px;
+            `;
+            currentSourceDiv.appendChild(currentSourceValue);
+            pluginSourceSection.appendChild(currentSourceDiv);
+            
+            // 插件源输入框
+            const sourceInput = this.createInput(
+                'pluginSource',
+                i18n.t('pluginSource'),
+                i18n.t('pluginSourceDesc'),
+                'text',
+                '',
+                () => {
+                    const source = ConfigManager.get('pluginSource', '');
+                    return source || '';
+                },
+                (value) => {
+                    // 移除末尾的斜杠
+                    const cleanValue = value.trim().replace(/\/+$/, '');
+                    if (cleanValue) {
+                        ConfigManager.set('pluginSource', cleanValue);
+                    } else {
+                        ConfigManager.delete('pluginSource');
+                    }
+                    // 更新当前源显示
+                    currentSourceValue.textContent = getCurrentSource();
+                }
+            );
+            
+            // 设置输入框占位符
+            const inputEl = sourceInput.querySelector('input');
+            if (inputEl) {
+                inputEl.placeholder = i18n.t('pluginSourcePlaceholder');
+            }
+            
+            pluginSourceSection.appendChild(sourceInput);
+            
+            // 操作按钮
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = 'display: flex; gap: 12px; margin-top: 16px;';
+            
+            // 重置按钮
+            const resetBtn = this.createButton(i18n.t('pluginSourceReset'), 'secondary', () => {
+                ConfigManager.delete('pluginSource');
+                if (inputEl) {
+                    inputEl.value = '';
+                }
+                currentSourceValue.textContent = getCurrentSource();
+                this.showMessage(i18n.t('resetSuccess'));
+            });
+            resetBtn.style.marginTop = '0';
+            
+            // 测试连接按钮
+            const testBtn = this.createButton(i18n.t('pluginSourceTest'), 'secondary', async () => {
+                const source = getCurrentSource();
+                if (!source) {
+                    this.showMessage(i18n.t('pluginSourceTestFailed'));
+                    return;
+                }
+                
+                testBtn.disabled = true;
+                const originalText = testBtn.textContent;
+                testBtn.textContent = i18n.t('pluginSourceTest') + '...';
+                
+                try {
+                    // 尝试访问插件目录（测试一个不存在的文件，只检查目录是否可访问）
+                    const testUrl = source + '/test-connection.js';
+                    const response = await fetch(testUrl, { method: 'HEAD' });
+                    // 即使404也说明服务器可访问
+                    if (response.status === 404 || response.status === 200) {
+                        this.showMessage(i18n.t('pluginSourceTestSuccess'));
+                    } else {
+                        this.showMessage(i18n.t('pluginSourceTestFailed') + ': ' + response.status);
+                    }
+                } catch (error) {
+                    this.showMessage(i18n.t('pluginSourceTestFailed') + ': ' + error.message);
+                } finally {
+                    testBtn.disabled = false;
+                    testBtn.textContent = originalText;
+                }
+            });
+            testBtn.style.marginTop = '0';
+            
+            buttonContainer.appendChild(resetBtn);
+            buttonContainer.appendChild(testBtn);
+            pluginSourceSection.appendChild(buttonContainer);
+            
+            container.appendChild(pluginSourceSection);
             
             return container;
         },
@@ -1515,7 +1681,20 @@
     // GitHub 仓库地址
     const GITHUB_REPO = 'https://github.com/juzijun233/Pixiv-Evolved';
     const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main';
-    const PLUGINS_BASE_URL = `${GITHUB_RAW_BASE}/plugins`;
+    const DEFAULT_PLUGINS_BASE_URL = `${GITHUB_RAW_BASE}/plugins`;
+    
+    /**
+     * 获取插件源URL
+     * @returns {string} 插件源的基础URL
+     */
+    function getPluginSourceUrl() {
+        const customSource = ConfigManager.get('pluginSource', '');
+        if (customSource && customSource.trim()) {
+            // 移除末尾的斜杠
+            return customSource.trim().replace(/\/+$/, '');
+        }
+        return DEFAULT_PLUGINS_BASE_URL;
+    }
     
     // 默认插件列表（已通过 @require 加载的插件不需要再次加载）
     const DEFAULT_PLUGINS = [
@@ -1534,22 +1713,27 @@
             return;
         }
         
+        // 获取插件源URL
+        const pluginsBaseUrl = getPluginSourceUrl();
+        console.log(`[Pixiv-Evolved] 使用插件源: ${pluginsBaseUrl}`);
         console.log(`[Pixiv-Evolved] 开始加载 ${allPlugins.length} 个插件...`);
         
         // 动态加载插件
         for (const pluginFile of allPlugins) {
-            const pluginUrl = `${PLUGINS_BASE_URL}/${pluginFile}`;
-            console.log(`[Pixiv-Evolved] 加载插件: ${pluginFile}`);
+            // 确保插件文件名不包含路径分隔符
+            const cleanPluginFile = pluginFile.replace(/^\/+/, '').replace(/\.\./g, '');
+            const pluginUrl = `${pluginsBaseUrl}/${cleanPluginFile}`;
+            console.log(`[Pixiv-Evolved] 加载插件: ${cleanPluginFile} (${pluginUrl})`);
             
             try {
                 const success = await PluginManager.loadPluginScript(pluginUrl);
                 if (success) {
-                    console.log(`[Pixiv-Evolved] 插件加载成功: ${pluginFile}`);
+                    console.log(`[Pixiv-Evolved] 插件加载成功: ${cleanPluginFile}`);
                 } else {
-                    console.warn(`[Pixiv-Evolved] 插件加载失败: ${pluginFile}`);
+                    console.warn(`[Pixiv-Evolved] 插件加载失败: ${cleanPluginFile}`);
                 }
             } catch (error) {
-                console.error(`[Pixiv-Evolved] 加载插件时出错 ${pluginFile}:`, error);
+                console.error(`[Pixiv-Evolved] 加载插件时出错 ${cleanPluginFile}:`, error);
             }
         }
         
