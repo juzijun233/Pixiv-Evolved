@@ -1204,6 +1204,23 @@
                     pluginCard.appendChild(settingsContainer);
                 }
                 
+                // 检查插件是否有自定义设置UI
+                if (typeof plugin.getCustomSettingsUI === 'function') {
+                    try {
+                        const customUI = plugin.getCustomSettingsUI();
+                        if (customUI) {
+                            settingsContainer = settingsContainer || document.createElement('div');
+                            settingsContainer.style.cssText = settingsContainer.style.cssText || 'margin-left: 0;';
+                            settingsContainer.appendChild(customUI);
+                            if (!pluginCard.contains(settingsContainer)) {
+                                pluginCard.appendChild(settingsContainer);
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`[Pixiv-Evolved] 获取插件 ${plugin.id} 的自定义设置UI时出错:`, error);
+                    }
+                }
+                
                 container.appendChild(pluginCard);
             });
             

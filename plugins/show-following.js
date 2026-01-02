@@ -39,6 +39,8 @@
 
             this.followingSet = new Set(); // 存储已关注的用户ID
             this.privateFollowingSet = new Set(); // 存储悄悄关注的用户ID
+            this.followingUsers = new Map(); // 存储已关注用户的详细信息 {userId: {userId, userName, userAccount, imageUrl, ...}}
+            this.privateFollowingUsers = new Map(); // 存储悄悄关注用户的详细信息
             this.currentUserId = null;
             this.isLoading = false;
             this.observer = null;
@@ -75,6 +77,12 @@
             // 移除所有添加的眼睛图标
             this.removeAllIcons();
             
+            // 移除弹窗
+            const modal = document.getElementById('pixiv-evolved-following-list-modal');
+            if (modal) {
+                modal.remove();
+            }
+            
             // 停止观察器
             if (this.observer) {
                 this.observer.disconnect();
@@ -84,6 +92,8 @@
             // 清理数据
             this.followingSet.clear();
             this.privateFollowingSet.clear();
+            this.followingUsers.clear();
+            this.privateFollowingUsers.clear();
             this.currentUserId = null;
             this.processedElements = new WeakSet();
         }
@@ -267,7 +277,16 @@
                         // 处理公开关注
                         data.body.users.forEach(user => {
                             if (user.userId) {
-                                this.followingSet.add(String(user.userId));
+                                const userId = String(user.userId);
+                                this.followingSet.add(userId);
+                                // 存储用户详细信息
+                                this.followingUsers.set(userId, {
+                                    userId: user.userId,
+                                    userName: user.userName || user.name,
+                                    userAccount: user.userAccount || user.account,
+                                    imageUrl: user.imageUrl || user.profileImageUrl || user.avatar,
+                                    isPrivate: false
+                                });
                             }
                         });
                     }
@@ -335,7 +354,16 @@
                     if (data.body && data.body.users) {
                         data.body.users.forEach(user => {
                             if (user.userId) {
-                                this.privateFollowingSet.add(String(user.userId));
+                                const userId = String(user.userId);
+                                this.privateFollowingSet.add(userId);
+                                // 存储用户详细信息
+                                this.privateFollowingUsers.set(userId, {
+                                    userId: user.userId,
+                                    userName: user.userName || user.name,
+                                    userAccount: user.userAccount || user.account,
+                                    imageUrl: user.imageUrl || user.profileImageUrl || user.avatar,
+                                    isPrivate: true
+                                });
                             }
                         });
                     }
@@ -497,8 +525,304 @@
             icons.forEach(icon => icon.remove());
         }
 
+        /**
+         * 显示关注列表弹窗
+         */
+        showFollowingList() {
+            // 合并所有关注用户
+            const allUsers = [];
+            
+            // 添加公开关注
+            this.followingUsers.forEach((user, userId) => {
+                allUsers.push(user);
+            });
+            
+            // 添加悄悄关注
+            this.privateFollowingUsers.forEach((user, userId) => {
+                // 避免重复（如果同时存在于两个列表中）
+                if (!this.followingUsers.has(userId)) {
+                    allUsers.push(user);
+                }
+            });
+            
+            // 按用户名排序
+            allUsers.sort((a, b) => {
+                const nameA = (a.userName || a.userAccount || '').toLowerCase();
+                const nameB = (b.userName || b.userAccount || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+            
+            // 创建弹窗
+            this.createFollowingListModal(allUsers);
+        }
+
+        /**
+         * 创建关注列表弹窗
+         */
+        createFollowingListModal(users) {
+            // 移除已存在的弹窗
+            const existingModal = document.getElementById('pixiv-evolved-following-list-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 创建遮罩层
+            const overlay = document.createElement('div');
+            overlay.id = 'pixiv-evolved-following-list-modal';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 100000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
+            `;
+            
+            // 创建弹窗容器
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: #fff;
+                border-radius: 8px;
+                width: 100%;
+                max-width: 800px;
+                max-height: 80vh;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            `;
+            
+            // 创建标题栏
+            const header = document.createElement('div');
+            header.style.cssText = `
+                padding: 20px;
+                border-bottom: 1px solid #e5e5e5;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            `;
+            
+            const title = document.createElement('h2');
+            title.style.cssText = `
+                margin: 0;
+                font-size: 18px;
+                font-weight: 600;
+                color: #212121;
+            `;
+            title.textContent = `关注列表 (共 ${users.length} 人)`;
+            header.appendChild(title);
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = `
+                background: none;
+                border: none;
+                font-size: 28px;
+                color: #666;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                text-align: center;
+            `;
+            closeBtn.onclick = () => overlay.remove();
+            closeBtn.onmouseover = () => closeBtn.style.color = '#212121';
+            closeBtn.onmouseout = () => closeBtn.style.color = '#666';
+            header.appendChild(closeBtn);
+            
+            // 创建内容区域
+            const content = document.createElement('div');
+            content.style.cssText = `
+                padding: 20px;
+                overflow-y: auto;
+                flex: 1;
+            `;
+            
+            if (users.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.cssText = `
+                    text-align: center;
+                    color: #999;
+                    padding: 40px 0;
+                `;
+                emptyMsg.textContent = '暂无关注列表数据，请先加载关注列表';
+                content.appendChild(emptyMsg);
+            } else {
+                // 创建用户列表
+                const userList = document.createElement('div');
+                userList.style.cssText = `
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                    gap: 16px;
+                `;
+                
+                users.forEach(user => {
+                    const userItem = document.createElement('div');
+                    userItem.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 12px;
+                        border: 1px solid #e5e5e5;
+                        border-radius: 4px;
+                        transition: background 0.2s;
+                    `;
+                    userItem.onmouseover = () => userItem.style.background = '#f5f5f5';
+                    userItem.onmouseout = () => userItem.style.background = '#fff';
+                    
+                    // 头像
+                    const avatar = document.createElement('img');
+                    avatar.src = user.imageUrl || 'https://s.pixiv.net/common/images/no_profile.png';
+                    avatar.alt = user.userName || user.userAccount || '';
+                    avatar.style.cssText = `
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        flex-shrink: 0;
+                    `;
+                    avatar.onerror = () => {
+                        avatar.src = 'https://s.pixiv.net/common/images/no_profile.png';
+                    };
+                    
+                    // 用户信息
+                    const userInfo = document.createElement('div');
+                    userInfo.style.cssText = `
+                        flex: 1;
+                        min-width: 0;
+                    `;
+                    
+                    // 用户名链接
+                    const nameLink = document.createElement('a');
+                    nameLink.href = `https://www.pixiv.net/users/${user.userId}`;
+                    nameLink.target = '_blank';
+                    nameLink.rel = 'noopener noreferrer';
+                    nameLink.style.cssText = `
+                        display: block;
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: #0096fa;
+                        text-decoration: none;
+                        margin-bottom: 4px;
+                        word-break: break-word;
+                    `;
+                    nameLink.textContent = user.userName || user.userAccount || `用户 ${user.userId}`;
+                    nameLink.onmouseover = () => nameLink.style.textDecoration = 'underline';
+                    nameLink.onmouseout = () => nameLink.style.textDecoration = 'none';
+                    
+                    // 用户账号（如果与用户名不同）
+                    if (user.userAccount && user.userAccount !== user.userName) {
+                        const account = document.createElement('div');
+                        account.style.cssText = `
+                            font-size: 12px;
+                            color: #999;
+                        `;
+                        account.textContent = `@${user.userAccount}`;
+                        userInfo.appendChild(account);
+                    }
+                    
+                    // 悄悄关注标识
+                    if (user.isPrivate) {
+                        const privateBadge = document.createElement('span');
+                        privateBadge.textContent = '悄悄关注';
+                        privateBadge.style.cssText = `
+                            font-size: 11px;
+                            color: #999;
+                            background: #f0f0f0;
+                            padding: 2px 6px;
+                            border-radius: 2px;
+                            margin-left: 4px;
+                        `;
+                        nameLink.appendChild(privateBadge);
+                    }
+                    
+                    userInfo.insertBefore(nameLink, userInfo.firstChild);
+                    
+                    userItem.appendChild(avatar);
+                    userItem.appendChild(userInfo);
+                    userList.appendChild(userItem);
+                });
+                
+                content.appendChild(userList);
+            }
+            
+            modal.appendChild(header);
+            modal.appendChild(content);
+            overlay.appendChild(modal);
+            
+            // 点击遮罩层关闭
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                }
+            };
+            
+            // 添加到页面
+            document.body.appendChild(overlay);
+        }
+
+        /**
+         * 获取自定义设置UI（用于在插件设置中添加自定义按钮）
+         */
+        getCustomSettingsUI() {
+            const container = document.createElement('div');
+            container.style.cssText = `
+                margin-top: 16px;
+                padding-top: 16px;
+                border-top: 1px solid #e5e5e5;
+            `;
+            
+            const button = document.createElement('button');
+            button.textContent = '取关注列表';
+            button.style.cssText = `
+                background: #0096fa;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s;
+            `;
+            button.onmouseover = () => button.style.background = '#0088e6';
+            button.onmouseout = () => button.style.background = '#0096fa';
+            button.onclick = () => {
+                if (this.followingUsers.size === 0 && this.privateFollowingUsers.size === 0) {
+                    alert('关注列表为空，请先等待插件加载关注列表，或刷新页面。');
+                } else {
+                    this.showFollowingList();
+                }
+            };
+            
+            const desc = document.createElement('div');
+            desc.style.cssText = `
+                font-size: 12px;
+                color: #999;
+                margin-top: 8px;
+            `;
+            desc.textContent = '点击查看所有已关注的画师列表（用于调试）';
+            
+            container.appendChild(button);
+            container.appendChild(desc);
+            
+            return container;
+        }
+
         cleanup() {
             this.removeAllIcons();
+            
+            // 移除弹窗
+            const modal = document.getElementById('pixiv-evolved-following-list-modal');
+            if (modal) {
+                modal.remove();
+            }
             
             if (this.observer) {
                 this.observer.disconnect();
