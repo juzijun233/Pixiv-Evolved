@@ -17,6 +17,7 @@
 // @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/plugin-base.js
 // @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/example-plugin.js
 // @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/lazy-load.js
+// @require      https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/show-following.js
 // 注意：插件文件默认从 GitHub 仓库加载
 // GitHub 地址：https://github.com/juzijun233/Pixiv-Evolved
 // 插件目录：https://raw.githubusercontent.com/juzijun233/Pixiv-Evolved/main/plugins/
